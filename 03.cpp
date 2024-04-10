@@ -1,38 +1,32 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 
 using namespace std;
 
-void part1()
-{
-
+void part1() {
     ifstream input("input");
     string line;
     vector<string> strvec;
 
-    while (getline(input, line))
-    {
+    while (getline(input, line)) {
         strvec.push_back(line);
     }
 
     int row = strvec.size();
     int col = strvec.begin()->size();
 
-    int i = 0;
-    int j = 0;
+    int i     = 0;
+    int j     = 0;
     int trees = 0;
-    while (i < row)
-    {
-        if (strvec[i][j] == '#')
-        {
+    while (i < row) {
+        if (strvec[i][j] == '#') {
             ++trees;
         }
         ++i;
         j += 3;
-        if (j >= col)
-        {
+        if (j >= col) {
             j -= col;
         }
     }
@@ -40,14 +34,12 @@ void part1()
     cout << trees << '\n';
 }
 
-void part2()
-{
+void part2() {
     ifstream input("input");
     string line;
     vector<string> strvec;
 
-    while (getline(input, line))
-    {
+    while (getline(input, line)) {
         strvec.push_back(line);
     }
 
@@ -58,18 +50,15 @@ void part2()
 
     vector<vector<pair<int, int>>> posvec;
 
-    for (size_t n = 0; n < slopes.size(); ++n)
-    {
+    for (size_t n = 0; n < slopes.size(); ++n) {
         int i = 0;
         int j = 0;
         vector<pair<int, int>> pos;
-        while (i < row)
-        {
+        while (i < row) {
             pos.push_back({i, j});
             i += slopes[n].second;
             j += slopes[n].first;
-            if (j >= col)
-            {
+            if (j >= col) {
                 j -= col;
             }
         }
@@ -78,13 +67,10 @@ void part2()
     }
 
     int64_t re = 1;
-    for (size_t n = 0; n < posvec.size(); ++n)
-    {
+    for (size_t n = 0; n < posvec.size(); ++n) {
         int count = 0;
-        for (auto [i, j] : posvec[n])
-        {
-            if (strvec[i][j] == '#')
-            {
+        for (auto [i, j] : posvec[n]) {
+            if (strvec[i][j] == '#') {
                 ++count;
             }
         }
@@ -95,8 +81,7 @@ void part2()
     cout << re << '\n';
 }
 
-int main()
-{
+int main() {
     part1();
     part2();
     return 0;

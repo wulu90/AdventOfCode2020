@@ -1,59 +1,50 @@
-#include <iostream>
-#include <string>
-#include <ranges>
-#include <string_view>
-#include <string>
+#include <algorithm>
 #include <charconv>
 #include <fstream>
-#include <algorithm>
+#include <iostream>
+#include <ranges>
+#include <string>
+#include <string_view>
 
 using namespace std;
 
-struct pass
-{
+struct pass {
     int lowest;
     int highest;
     char letter;
     string str;
     bool valid;
 
-    pass(const string &s) : valid{false}
-    {
+    pass(const string& s) : valid{false} {
         auto inx = s.find('-');
         from_chars(&s[0], &s[inx], lowest);
         auto sp = s.find(' ');
         from_chars(&s[inx + 1], &s[sp], highest);
 
         letter = s[sp + 1];
-        str = s.substr(sp + 4);
+        str    = s.substr(sp + 4);
 
         auto n = count(str.begin(), str.end(), letter);
-        if (n >= lowest && n <= highest)
-        {
+        if (n >= lowest && n <= highest) {
             valid = true;
         }
     }
 
-    bool valid2()
-    {
-        if ((str[lowest - 1] == letter && str[highest - 1] != letter) || (str[lowest - 1] != letter && str[highest - 1] == letter))
-        {
+    bool valid2() {
+        if ((str[lowest - 1] == letter && str[highest - 1] != letter) || (str[lowest - 1] != letter && str[highest - 1] == letter)) {
             return true;
         }
         return false;
     }
 };
 
-void part1()
-{
+void part1() {
     ifstream input("input");
     string line;
     int count = 0;
-    while (getline(input, line))
-    {
+    while (getline(input, line)) {
         pass p(line);
-        if (p.valid)
-        {
+        if (p.valid) {
             ++count;
         }
     }
@@ -61,16 +52,13 @@ void part1()
     cout << count << '\n';
 }
 
-void part2()
-{
+void part2() {
     ifstream input("input");
     string line;
     int count = 0;
-    while (getline(input, line))
-    {
+    while (getline(input, line)) {
         pass p(line);
-        if (p.valid2())
-        {
+        if (p.valid2()) {
             ++count;
         }
     }
@@ -78,8 +66,7 @@ void part2()
     cout << count << '\n';
 }
 
-int main()
-{
+int main() {
     part1();
     part2();
 }
