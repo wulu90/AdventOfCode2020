@@ -82,6 +82,14 @@
         {
             "name": "windows_release",
             "configurePreset": "windows_release"
+        },
+        {
+            "name": "linux_debug",
+            "configurePreset": "linux_debug"
+        },
+        {
+            "name": "linux_release",
+            "configurePreset": "linux_release"
         }
     ]
 }
