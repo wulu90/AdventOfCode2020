@@ -61,7 +61,70 @@ void part1() {
     cout << accumulator << '\n';
 }
 
+void part2() {
+    ifstream input("input");
+    string line;
+    vector<instruction> ins;
+    while (getline(input, line)) {
+        ins.emplace_back(line);
+    }
+
+    vector<size_t> jmp_nop_inx;
+    for (size_t i = 0; i < ins.size(); ++i) {
+        if (ins[i].op == operation::jmp || ins[i].op == operation::nop) {
+            jmp_nop_inx.push_back(i);
+        }
+    }
+    for (size_t i = 0; i < jmp_nop_inx.size(); ++i) {
+        int accumulator  = 0;
+        size_t ins_index = 0;
+        vector<int> exetime(ins.size(), 0);
+        size_t tobechanged = jmp_nop_inx[i];
+        bool terminate     = false;
+        while (true) {
+            if (ins_index == ins.size()) {
+                terminate = true;
+                break;
+            }
+
+            if (exetime[ins_index] == 1) {    // loop
+                break;
+            }
+
+            ++exetime[ins_index];
+
+            auto [op, arg] = ins[ins_index];
+            switch (op) {
+            case operation::acc:
+                accumulator += arg;
+                ++ins_index;
+                break;
+            case operation::jmp:
+                if (ins_index == tobechanged) {    // jmp -> nop
+                    ++ins_index;
+                } else {
+                    ins_index += arg;
+                }
+                break;
+            default:
+                if (ins_index == tobechanged) {    // nop -> jmp
+                    ins_index += arg;
+                } else {
+                    ++ins_index;
+                }
+                break;
+            }
+        }
+
+        if (terminate) {
+            cout << accumulator << '\n';
+            break;
+        }
+    }
+}
+
 int main() {
     part1();
+    part2();
     return 0;
 }
