@@ -80,7 +80,74 @@ void part1() {
     cout << abs(x) + abs(y) << '\n';
 }
 
+void rotate_waypoint(char a, int v, int& x, int& y) {
+    int ox = x;
+    int oy = y;
+    if (a == 'L') {
+        if (v == 90) {
+            x = -oy;
+            y = ox;
+        } else if (v == 180) {
+            x = -ox;
+            y = -oy;
+        } else {
+            x = oy;
+            y = -ox;
+        }
+    } else {
+        if (v == 90) {
+            x = oy;
+            y = -ox;
+        } else if (v == 180) {
+            x = -ox;
+            y = -oy;
+        } else {
+            x = -oy;
+            y = ox;
+        }
+    }
+}
+
+void forward_waypoint(int v, int wx, int wy, int& x, int& y) {
+    x += wx * v;
+    y += wy * v;
+}
+
+void part2() {
+    ifstream input("input");
+    vector<instruction> ins_vec;
+    for (string line; getline(input, line);) {
+        ins_vec.emplace_back(line);
+    }
+
+    int x  = 0;
+    int y  = 0;
+    int wx = 10;
+    int wy = 1;
+
+    for (auto [a, v] : ins_vec) {
+        switch (a) {
+        case 'N':
+        case 'S':
+        case 'E':
+        case 'W':
+            movef(a, v, wx, wy);
+            break;
+        case 'L':
+        case 'R':
+            rotate_waypoint(a, v, wx, wy);
+            break;
+        case 'F':
+            forward_waypoint(v, wx, wy, x, y);
+            break;
+        }
+    }
+
+    cout << abs(x) + abs(y) << '\n';
+}
+
 int main() {
     part1();
+    part2();
     return 0;
 }
