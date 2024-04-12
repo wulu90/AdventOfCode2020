@@ -3,7 +3,9 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <queue>
 #include <string>
+#include <string_view>
 #include <vector>
 using namespace std;
 
@@ -68,7 +70,62 @@ void part1() {
     cout << num << '\n';
 }
 
+vector<u_int64_t> mask_addr(u_int64_t addr, const string& str) {
+    vector<size_t> xpos;
+    for (size_t i = 0; i < 36; ++i) {
+        if (str[i] == '1') {
+            addr = addr | (1ul << (35 - i));
+        } else if (str[i] == 'X') {
+            xpos.push_back(i);
+        }
+    }
+
+    vector<u_int64_t> addrvec;
+    queue<u_int64_t> q;
+    q.push(addr);
+
+    for (auto inx : xpos) {
+        auto n = q.size();
+        for (size_t i = 0; i < n; ++i) {
+            q.push(q.front() | (1ul << (35 - inx)));
+            q.push(q.front() & (~(1ul << (35 - inx))));
+            q.pop();
+        }
+    }
+
+    while (!q.empty()) {
+        addrvec.push_back(q.front());
+        q.pop();
+    }
+
+    return addrvec;
+}
+
+void part2() {
+    ifstream input("input");
+    string line;
+    string mask;
+    map<u_int64_t, u_int64_t> addr_value;
+    while (getline(input, line)) {
+        if (line.starts_with("mask")) {
+            mask = line.substr(7, 36);
+        } else {
+            auto [a, v] = parse_address_value(line);
+            for (auto addr : mask_addr(a, mask)) {
+                addr_value[addr] = v;
+            }
+        }
+    }
+    u_int64_t num = 0;
+    for (auto [a, v] : addr_value) {
+        num += v;
+    }
+
+    cout << num << '\n';
+}
+
 int main() {
     part1();
+    part2();
     return 0;
 }
