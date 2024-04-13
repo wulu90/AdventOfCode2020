@@ -48,6 +48,16 @@ int64_t precedence2(char op) {
 // https://github.com/somyalalwani/generic-calculator-using-stack/blob/main/code.cpp
 // https://stackoverflow.com/questions/64744819/stack-calculator has a error , () precedence should be 0 or -1.
 
+void process(stack<int64_t>& operator_stack, stack<char>& operand_stack) {
+    int64_t r = operator_stack.top();
+    operator_stack.pop();
+    int64_t l = operator_stack.top();
+    operator_stack.pop();
+    int64_t re = calc(operand_stack.top(), l, r);
+    operand_stack.pop();
+    operator_stack.push(re);
+}
+
 int64_t getvalue(const string& str, function<int64_t(char)> precedence) {
     stack<char> operand_stack;
     stack<int64_t> operator_stack;
@@ -68,38 +78,20 @@ int64_t getvalue(const string& str, function<int64_t(char)> precedence) {
             operand_stack.push('(');
         } else if (str[i] == ')') {
             while (operand_stack.top() != '(') {
-                int64_t r = operator_stack.top();
-                operator_stack.pop();
-                int64_t l = operator_stack.top();
-                operator_stack.pop();
-                int64_t re = calc(operand_stack.top(), l, r);
-                operand_stack.pop();
-                operator_stack.push(re);
+                process(operator_stack, operand_stack);
             }
             operand_stack.pop();
         } else if (str[i] == '+' || str[i] == '*') {
             int64_t cp = precedence(str[i]);
             while (!operand_stack.empty() && precedence(operand_stack.top()) >= cp) {
-                int64_t r = operator_stack.top();
-                operator_stack.pop();
-                int64_t l = operator_stack.top();
-                operator_stack.pop();
-                int64_t re = calc(operand_stack.top(), l, r);
-                operator_stack.push(re);
-                operand_stack.pop();
+                process(operator_stack, operand_stack);
             }
             operand_stack.push(str[i]);
         }
     }
 
     while (!operand_stack.empty()) {
-        int64_t r = operator_stack.top();
-        operator_stack.pop();
-        int64_t l = operator_stack.top();
-        operator_stack.pop();
-        int64_t re = calc(operand_stack.top(), l, r);
-        operator_stack.push(re);
-        operand_stack.pop();
+        process(operator_stack, operand_stack);
     }
 
     return operator_stack.top();
