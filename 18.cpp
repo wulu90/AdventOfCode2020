@@ -1,80 +1,125 @@
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <stack>
 #include <string>
 
 using namespace std;
 
-int64_t calc(const string& str, size_t l, size_t r) {
-    int64_t ans  = 0;
-    int64_t curr = 0;
-    char op;
-    bool hasop = false;
-    for (size_t i = l; i < r; ++i) {
-        auto c = str[i];
-        if (isdigit(c)) {
-            curr = 0;
+int64_t calc(char op, int64_t l, int64_t r) {
+    if (op == '+')
+        return l + r;
+    else if (op == '*')
+        return l * r;
+    return -1;
+}
+
+int64_t precedence(char op) {
+    int64_t p = 0;
+    switch (op) {
+    case '+':
+    case '*':
+        p = 1;
+        break;
+        // case '(':
+        // case ')':
+        //     p = 2;
+    }
+    return p;
+}
+
+int64_t precedence2(char op) {
+    int64_t p = 0;
+    switch (op) {
+    case '+':
+        p = 2;
+        break;
+    case '*':
+        p = 1;
+        break;
+        // case '(':
+        // case ')':
+        //     p = 2;
+    }
+    return p;
+}
+
+// https://en.wikipedia.org/wiki/Shunting_yard_algorithm
+// https://github.com/somyalalwani/generic-calculator-using-stack/blob/main/code.cpp
+// https://stackoverflow.com/questions/64744819/stack-calculator has a error , () precedence should be 0 or -1.
+
+int64_t getvalue(const string& str, function<int64_t(char)> precedence) {
+    stack<char> operand_stack;
+    stack<int64_t> operator_stack;
+
+    for (size_t i = 0; i < str.size(); ++i) {
+        if (isdigit(str[i])) {
+            int64_t n = 0;
             while (isdigit(str[i])) {
-                curr = curr * 10 + str[i] - '0';
+                n = n * 10 + str[i] - '0';
                 ++i;
             }
             --i;
 
-            if (hasop) {
-                if (op == '+') {
-                    ans += curr;
-                } else if (op == '*') {
-                    ans *= curr;
-                }
-            } else {
-                ans = curr;
-            }
-
-        } else if (isspace(c)) {
+            operator_stack.push(n);
+        } else if (str[i] == ' ') {
             continue;
-        } else {
-            if (c == '+' || c == '*') {
-                op    = c;
-                hasop = true;
-            } else {
-                if (c == '(') {
-                    int lb = 1;
-                    for (size_t j = i + 1; j < r; ++j) {
-                        if (str[j] == '(') {
-                            ++lb;
-                        } else if (str[j] == ')') {
-                            --lb;
-                            if (lb == 0) {
-                                curr = calc(str, i, j);
-                                i    = j + 1;
-
-                                if (hasop) {
-                                    if (op == '+') {
-                                        ans += curr;
-                                    } else if (op == '*') {
-                                        ans *= curr;
-                                    }
-                                } else {
-                                    ans = curr;
-                                }
-
-                                break;
-                            }
-                        }
-                    }
-                }
+        } else if (str[i] == '(') {
+            operand_stack.push('(');
+        } else if (str[i] == ')') {
+            while (operand_stack.top() != '(') {
+                int64_t r = operator_stack.top();
+                operator_stack.pop();
+                int64_t l = operator_stack.top();
+                operator_stack.pop();
+                int64_t re = calc(operand_stack.top(), l, r);
+                operand_stack.pop();
+                operator_stack.push(re);
             }
+            operand_stack.pop();
+        } else if (str[i] == '+' || str[i] == '*') {
+            int64_t cp = precedence(str[i]);
+            while (!operand_stack.empty() && precedence(operand_stack.top()) >= cp) {
+                int64_t r = operator_stack.top();
+                operator_stack.pop();
+                int64_t l = operator_stack.top();
+                operator_stack.pop();
+                int64_t re = calc(operand_stack.top(), l, r);
+                operator_stack.push(re);
+                operand_stack.pop();
+            }
+            operand_stack.push(str[i]);
         }
     }
 
-    return ans;
+    while (!operand_stack.empty()) {
+        int64_t r = operator_stack.top();
+        operator_stack.pop();
+        int64_t l = operator_stack.top();
+        operator_stack.pop();
+        int64_t re = calc(operand_stack.top(), l, r);
+        operator_stack.push(re);
+        operand_stack.pop();
+    }
+
+    return operator_stack.top();
 }
 
 void part1() {
     ifstream input("input");
     int64_t ans = 0;
     for (string line; getline(input, line);) {
-        ans += calc(line, 0, line.size());
+        ans += getvalue(line, precedence);
+    }
+
+    cout << ans << '\n';
+}
+
+void part2() {
+    ifstream input("input");
+    int64_t ans = 0;
+    for (string line; getline(input, line);) {
+        ans += getvalue(line, precedence2);
     }
 
     cout << ans << '\n';
@@ -82,5 +127,6 @@ void part1() {
 
 int main() {
     part1();
+    part2();
     return 0;
 }
