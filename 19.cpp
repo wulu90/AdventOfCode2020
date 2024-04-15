@@ -118,7 +118,7 @@ set<string> rule_to_str(const vector<vector<int>>& rule, const map<int, string>&
     return re;
 }
 
-void part1() {
+void solve() {
     ifstream input("input");
     map<int, vector<vector<int>>> rulemap;
     map<int, vector<int>> parentmap;
@@ -184,9 +184,80 @@ void part1() {
     }
 
     cout << validcount << '\n';
+
+    auto set_31 = rule_to_str(rulemap[31], strrules);
+    auto set_42 = rule_to_str(rulemap[42], strrules);
+
+    /**
+    ofstream ouput("output.txt");
+
+    for (auto& s : set_31) {
+        ouput << s << '\n';
+    }
+    ouput << '\n';
+
+    for (auto& s : set_42) {
+        ouput << s << '\n';
+    }
+    ouput << '\n';
+    */
+
+    int validcount_2 = 0;
+    int len          = 8;    // in 42 and 31   all rule string's lenggth is 8
+    for (const auto& msg : msgvec) {
+        if (msg.length() % len != 0) {
+            continue;
+        }
+
+        bool substr_in_31   = false;
+        bool substr_in_42   = false;
+        bool order_correct  = true;
+        int substr_42_count = 0;
+        int substr_31_count = 0;
+        for (size_t i = 0; i < msg.length() / len; ++i) {
+            string substr = msg.substr(i * len, len);
+            if (set_31.contains(substr)) {
+                substr_in_31 = true;
+                ++substr_31_count;
+                if (!substr_in_42) {
+                    order_correct = false;
+                    break;
+                }
+            }
+            if (set_42.contains(substr)) {
+                substr_in_42 = true;
+                ++substr_42_count;
+                if (substr_in_31) {
+                    order_correct = false;
+                    break;
+                }
+            }
+        }
+
+        if (substr_in_42 && substr_in_31 && order_correct && substr_42_count > substr_31_count) {
+            ++validcount_2;
+
+            /**
+            ouput << msg << '\n';
+            ouput << msg.length() / len << ": "s;
+
+            for (size_t i = 0; i < msg.length() / len; ++i) {
+                string substr = msg.substr(i * len, len);
+                if (set_31.contains(substr)) {
+                    ouput << 31 << ' ';
+                }
+                if (set_42.contains(substr)) {
+                    ouput << 42 << ' ';
+                }
+            }
+            ouput << '\n';
+            */
+        }
+    }
+    cout << validcount_2 << '\n';
 }
 
 int main() {
-    part1();
+    solve();
     return 0;
 }
